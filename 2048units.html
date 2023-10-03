@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="width: 100%;height: 100%;">
 
 <head>
     <meta name="viewport" content="width=device-width,height=window-height">
@@ -15,7 +15,8 @@
 
     body {
         background-color: #222222;
-        height: 100%
+        width: 100%;
+        height: 100%;
     }
 
     /* .area{
@@ -56,6 +57,10 @@
         z-index: 1;
     }
 
+    div {
+        color: #ffffff;
+    }
+
     p {
         font-family: sans-serif;
         text-align: center;
@@ -88,17 +93,35 @@
         </div>
     </div>
     <div class="area" style="float: left;width: 510px;aspect-ratio: 1;position: relative;">
-        <div id="bggrid" class="grid"
+        <div id="bg" class="grid"
             style="width: 510px;height: 510px;position: absolute;border-radius: 20px;background-color: #444444;">
+            <div id="bggrid" class="grid" style="width: 100%;height: 100%;position: absolute;">
+
+            </div>
             <div id="gamegrid" class="grid" style="width: 100%;height: 100%;position: absolute;">
 
             </div>
         </div>
     </div>
-    <div id="otherinfo" class="plate" style="float: left;">
-        <p>Discovered Units:</p>
-        <div id="discovered">
+    <div id="otherinfo" style="float: left;">
+        <div class="plate">
+            <p>Discovered Units:</p>
+            <div id="discovered">
 
+            </div>
+        </div>
+        <div class="plate">
+            <button onclick="saveGame()">
+                Save
+            </button>
+            <button onclick="loadGame()">
+                Load
+            </button>
+            <form>
+                <textarea id="leveldata">
+
+                </textarea>
+            </form>
         </div>
     </div>
 </body>
@@ -379,6 +402,7 @@
             this.cell.style.zIndex = 2
         }
     }
+    //init scripts
     function init() {
         cells = []
         for (let y = 0; y < HEIGHT; y++) {
@@ -393,14 +417,26 @@
                 cell.style.margin = "10px"
                 cell.style.left = x * 125 + "px"
                 cell.style.top = y * 125 + "px"
-                gamegrid.appendChild(cell)
+                bggrid.appendChild(cell)
                 row[x] = null
             }
             cells[y] = row
         }
+    }
+    function clear() {
+        while (bggrid.hasChildNodes()) {
+            bggrid.removeChild(bggrid.childNodes[0])
+        }
+        while (gamegrid.hasChildNodes()) {
+            gamegrid.removeChild(gamegrid.childNodes[0])
+        }
+        init()
+    }
+    function newGame() {
         spawnCells(2)
         updateRound()
     }
+
     //Move all cells in grid
     function move(dir) {
         var success = 0
@@ -448,6 +484,7 @@
             }
         }
     }
+
     //Update when doing a round
     function updateRound() {
         var complexity = 0
@@ -489,6 +526,7 @@
             unlockedUnits.push("a")
         }
     }
+
     //Update after completing a round
     function afterRound() {
         for (const y in cells) {
@@ -506,7 +544,40 @@
         }
         cellsToDelete = []
     }
+
+    //save and load
+    function serialize() {
+        var cellsToExport = []
+        for (const y in cells) {
+            var row = cells[y]
+            for (const x in row) {
+                var cell = row[x]
+                if (cell instanceof cellGrid) {
+                    cellsToExport.push({ x: cell.x, y: cell.y, units: cell.units })
+                }
+            }
+        }
+        return { id: "2048units_savedata", cells: cellsToExport }
+    }
+    function saveGame() {
+        document.getElementById("leveldata").value = (JSON.stringify(serialize()))
+    }
+    function loadData() {
+        return JSON.parse(document.getElementById("leveldata").value)
+    }
+    function loadGame() {
+        clear()
+        init()
+        var savedData = loadData()
+        if (savedData.id != "2048units_savedata") return
+        for (const i in savedData.cells) {
+            const cell = savedData.cells[i]
+            new cellGrid(cell.x, cell.y, cell.units)
+        }
+        updateRound()
+    }
     init()
+    newGame()
     window.addEventListener("keydown", onkeydown)
 </script>
 
