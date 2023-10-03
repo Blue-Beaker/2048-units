@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html style="width: 100%;height: 100%;">
+<html style="width: 99%;height: 99%;">
 
 <head>
     <meta name="viewport" content="width=device-width,height=window-height">
@@ -15,8 +15,8 @@
 
     body {
         background-color: #222222;
-        width: 100%;
-        height: 100%;
+        width: 95%;
+        height: 95%;
     }
 
     /* .area{
@@ -34,19 +34,39 @@
         width: 115px;
         height: 115px;
         z-index: 3;
-        transition: left 0.2s, top 0.2s;
-        -webkit-transition: left 0.2s, top 0.2s;
-        transition-timing-function: ease-in;
-        animation: spawn 0.3s;
-        animation-timing-function: ease-in;
+        transition: left 0.2s, top 0.2s ease-in;
+        -webkit-transition: left 0.2s, top 0.2s ease-in;
+        animation: spawn 0.3s ease-in;
         offset-anchor: center;
         font-size: larger;
+    }
+
+    .info_cell {
+        background-color: #808080;
+        border-radius: 5px;
+        border-style: none;
+        text-align: center;
+        position: relative;
+        float: left;
+        margin: 5px;
+        width: 3em;
+        height: 3em;
+        z-index: 3;
+        offset-anchor: center;
+        font-size: large;
+        text-align: center;
     }
 
     .cellLabel {
         font-family: sans-serif;
         text-align: center;
-        margin: auto;
+        margin: 0px;
+        position: absolute;
+        top:50%;
+        left: 50%;
+        transform: translate(-50%,-60%);
+    }
+    .largeFont {
         font-size: 2rem;
     }
 
@@ -55,9 +75,19 @@
         border-radius: 10px;
         border-style: none;
         z-index: 1;
+        margin: 10px;
+    }
+
+    textarea{
+        font-family: sans-serif;
+        background-color: #222222;
+        color: #ffffff;
+        border-radius: 5px;
+        margin: 5px;
     }
 
     div {
+        font-family: sans-serif;
         color: #ffffff;
     }
 
@@ -79,34 +109,36 @@
 </style>
 
 <body>
-    <div class="info" style="float:left;width: 100%;">
-        <div style="float: left;">
-            <p style="font-size: xxx-large;margin-top: 0;">2048 Units</p>
-        </div>
-        <div class="plate" style="float: left;width: 100px;height: 100px;">
-            <p style="text-align: center;">SCORE</p>
-            <p id="score" style="text-align: center;"></p>
-        </div>
-        <div class="plate" style="float: left;width: 100px;height: 100px;">
-            <p style="text-align: center;">COMPLEXITY</p>
-            <p id="complexity" style="text-align: center;"></p>
-        </div>
-    </div>
-    <div class="area" style="float: left;width: 510px;aspect-ratio: 1;position: relative;">
-        <div id="bg" class="grid"
-            style="width: 510px;height: 510px;position: absolute;border-radius: 20px;background-color: #444444;">
-            <div id="bggrid" class="grid" style="width: 100%;height: 100%;position: absolute;">
-
+    <div style="float: left;width: min-content;">
+        <div class="info" style="float:left;width: 100%;">
+            <div style="float: left;">
+                <p style="font-size: xxx-large;margin-top: 0;">2048 Units</p>
             </div>
-            <div id="gamegrid" class="grid" style="width: 100%;height: 100%;position: absolute;">
-
+            <div class="plate" style="float: left;width: 100px;height: 100px;">
+                <p style="text-align: center;">SCORE</p>
+                <p id="score" style="text-align: center;"></p>
+            </div>
+            <div class="plate" style="float: left;width: 100px;height: 100px;">
+                <p style="text-align: center;">COMPLEXITY</p>
+                <p id="complexity" style="text-align: center;"></p>
             </div>
         </div>
+        <div class="area" style="float: left;width: 510px;aspect-ratio: 1;position: relative;">
+            <div id="bg" class="grid"
+                style="width: 510px;height: 510px;position: absolute;border-radius: 20px;background-color: #444444;">
+                <div id="bggrid" class="grid" style="width: 100%;height: 100%;position: absolute;">
+
+                </div>
+                <div id="gamegrid" class="grid" style="width: 100%;height: 100%;position: absolute;">
+
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="otherinfo" style="float: left;">
+    <div id="otherinfo" style="float: left;max-height: 100%;max-width:min-content;">
         <div class="plate">
             <p>Discovered Units:</p>
-            <div id="discovered">
+            <div id="discovered" style="max-width: max-content;max-height: max-content;">
 
             </div>
         </div>
@@ -118,7 +150,7 @@
                 Load
             </button>
             <form>
-                <textarea id="leveldata">
+                <textarea id="leveldata" >
 
                 </textarea>
             </form>
@@ -144,21 +176,21 @@
     var score = 0
     var cells = []
     // var newUnitPool = [{ m: 1 }, { s: 1 }]
-    var unlockedUnits = ["m1", "s1"]
+    var unlockedUnits = ["m1"]
     var discoveredUnits = []
 
     function resetVariables() {
         score = 0
         cells = []
         // newUnitPool = [{ m: 1 }, { s: 1 }]
-        unlockedUnits = ["m1", "s1"]
+        unlockedUnits = ["m1"]
         discoveredUnits = []
     }
 
     //Used after every round
     var wait = false
     var cellsToDelete = []
-
+    //Get and set cell in the grid
     function getCell(x, y) {
         if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
             return cells[y][x]
@@ -191,10 +223,12 @@
         var [x, y] = getSide(x, y, side)
         return getCell(x, y)
     }
+
     function logDebug(data) {
         if (debug)
             console.log(data)
     }
+
     function spawnCells(count = 2) {
         var emptyCells = []
         //Get empty cells for spawning
@@ -237,6 +271,23 @@
         }
         logDebug(event)
     }
+    //Coloring
+    function getColor(units) {
+            var color = 0x808080
+            if (units.m != null) {
+                color += units.m * 0x272700
+            }
+            if (units.s != null) {
+                color += units.s * 0x2700
+            }
+            if (units.kg != null) {
+                color += units.kg * 0x270000
+            }
+            if (units.A != null) {
+                color += units.A * 0x27
+            }
+            return color.toString(16)
+        }
     //Logic
     function multiply(units1, units2) {
         var units3 = {}
@@ -282,19 +333,19 @@
         m_1s_2kg1: "Pa",
         m2s_2kg1: "J",
         m2s_3kg1: "W",
-        A1:"A",
-        s1A1:"C",
-        m_1A1:"A/m",
-        m2s_3kg1A_1:"V",
-        m1s_3kg1A_1:"V/m",
-        m2s_3kg1A_2:"Ω",
-        m_2s4kg_1A2:"F",
-        s_2kg1A_1:"T",
-        m2s_2kg1A_1:"Wb",
+        A1: "A",
+        s1A1: "C",
+        m_1A1: "A/m",
+        m2s_3kg1A_1: "V",
+        m1s_3kg1A_1: "V/m",
+        m2s_3kg1A_2: "Ω",
+        m_2s4kg_1A2: "F",
+        s_2kg1A_1: "T",
+        m2s_2kg1A_1: "Wb",
     }
     const unitBase = ["m", "s", "kg", "A"]
     //Unit IDs and names
-    function getUnitID(units){
+    function getUnitID(units) {
         var unitID = ""
         for (const key in unitBase) {
             var unit = unitBase[key]
@@ -305,11 +356,11 @@
         unitID = unitID
         return unitID
     }
-    function getUnitFromID(unitID=""){
-        var unit={}
-        var matched=unitID.matchAll("([a-zA-Z]+)(_?[0-9]+)")
+    function getUnitFromID(unitID = "") {
+        var unit = {}
+        var matched = unitID.matchAll("([a-zA-Z]+)(_?[0-9]+)")
         for (const match of matched) {
-            unit[match[1]]=Number.parseInt(match[2].replace("_","-"))
+            unit[match[1]] = Number.parseInt(match[2].replace("_", "-"))
         }
         return unit
     }
@@ -318,7 +369,7 @@
         if (unitID.length == 0) { return "1" }
         return unitNameDict[unitID]
     }
-    function getUnitNameFromID(unitID){
+    function getUnitNameFromID(unitID) {
         if (unitID.length == 0) { return "1" }
         return unitNameDict[unitID]
     }
@@ -350,7 +401,7 @@
             setCell(x, y, this)
         }
         updateVisuals() {
-            this.cell.innerHTML = "<div class='cellLabel'>" + this.getName() + "</div>"
+            this.cell.innerHTML = "<div class='cellLabel largeFont'>" + this.getName() + "</div>"
             this.cell.style.backgroundColor = "#" + this.getColor()
         }
         updatePosition() {
@@ -361,20 +412,7 @@
             return getUnitName(this.units) || getUnitID(this.units)
         }
         getColor() {
-            var color = 0x808080
-            if (this.units.m != null) {
-                color += this.units.m * 0x272700
-            }
-            if (this.units.s != null) {
-                color += this.units.s * 0x2700
-            }
-            if (this.units.kg != null) {
-                color += this.units.kg * 0x270000
-            }
-            if (this.units.A != null) {
-                color += this.units.A * 0x27
-            }
-            return color.toString(16)
+            return getColor(this.units)
         }
         canMerge(obj, dir) {
             if (obj instanceof cellGrid) {
@@ -541,7 +579,7 @@
                         complexity += Math.abs(power)
                     }
                     var units = cell.units
-                    var unitID=getUnitID(cell.units)
+                    var unitID = getUnitID(cell.units)
                     if (!discoveredUnits.includes(unitID)) {
                         pushDiscovered(unitID)
                     }
@@ -557,18 +595,20 @@
         discoveredUnits.push(unitID)
         pushDiscoveredToWindow(unitID)
     }
-    function pushDiscoveredToWindow(unitID){
+    function pushDiscoveredToWindow(unitID) {
         var newDiscovered = document.createElement("div")
-        newDiscovered.classList.add("plate")
-        newDiscovered.innerHTML = "<p>" + (getUnitNameFromID(unitID)||unitID) + "</p>"
+        newDiscovered.style.backgroundColor="#"+getColor(getUnitFromID(unitID))
+        newDiscovered.classList.add("info_cell")
+        newDiscovered.innerHTML = "<p class='cellLabel'>"+(getUnitNameFromID(unitID) || unitID)+"</p>"
         discoveredUnitsElement.appendChild(newDiscovered)
     }
-    const unlockableUnits={
-        kg1:8,
-        A1:13
+    const unlockableUnits = {
+        s1: 3,
+        kg1: 8,
+        A1: 13
     }
     function unlockNewUnitsWhenReady() {
-        for(const unitID in unlockableUnits){
+        for (const unitID in unlockableUnits) {
             if (!unlockedUnits.includes(unitID) && discoveredUnits.length >= unlockableUnits[unitID]) {
                 unlockedUnits.push(unitID)
             }
@@ -605,7 +645,7 @@
                 }
             }
         }
-        return { id: "2048units_savedata", score: score, cells: cellsToExport, unlockedUnits: unlockedUnits,discoveredUnits:discoveredUnits}
+        return { id: "2048units_savedata", score: score, cells: cellsToExport, unlockedUnits: unlockedUnits, discoveredUnits: discoveredUnits }
     }
     function saveGame() {
         document.getElementById("leveldata").value = (JSON.stringify(serialize()))
@@ -618,25 +658,25 @@
         initGrid()
         var savedData = loadData()
         if (savedData.id != "2048units_savedata") return
-        if (savedData.cells!=null) {
+        if (savedData.cells != null) {
             for (const i in savedData.cells) {
                 const cell = savedData.cells[i]
                 new cellGrid(cell.x, cell.y, cell.units)
             }
         }
-        if (savedData.score!=null) {
+        if (savedData.score != null) {
             score = savedData.score
         } else {
             score = 0
         }
-        if (savedData.unlockedUnits!=null) {
+        if (savedData.unlockedUnits != null) {
             unlockedUnits = savedData.unlockedUnits
         } else {
             unlockedUnits = []
         }
-        if (savedData.discoveredUnits!=null) {
+        if (savedData.discoveredUnits != null) {
             discoveredUnits = savedData.discoveredUnits
-            for(const key in discoveredUnits){
+            for (const key in discoveredUnits) {
                 pushDiscoveredToWindow(discoveredUnits[key])
             }
         } else {
