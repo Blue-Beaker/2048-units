@@ -276,9 +276,21 @@
         m1s_2: "m/s²",
         kg1: "kg",
         m_3kg1: "kg/m³",
+        m1s_1kg1: "kg·m/s",
         m1s_2kg1: "N",
+        m1s_1kg1: "N·s",
+        m_1s_2kg1: "Pa",
         m2s_2kg1: "J",
         m2s_3kg1: "W",
+        A1:"A",
+        s1A1:"C",
+        m_1A1:"A/m",
+        m2s_3kg1A_1:"V",
+        m1s_3kg1A_1:"V/m",
+        m2s_3kg1A_2:"Ω",
+        m_2s4kg_1A2:"F",
+        s_2kg1A_1:"T",
+        m2s_2kg1A_1:"Wb",
     }
     const unitBase = ["m", "s", "kg", "A"]
     //Unit IDs and names
@@ -287,10 +299,10 @@
         for (const key in unitBase) {
             var unit = unitBase[key]
             if (units[unit] && units[unit] != 0) {
-                unitID += (unit + units[unit])
+                unitID += (unit + units[unit]).replace("-", "_")
             }
         }
-        unitID = unitID.replace("-", "_")
+        unitID = unitID
         return unitID
     }
     function getUnitFromID(unitID=""){
