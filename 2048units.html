@@ -134,19 +134,26 @@
     const DIR_LEFT = 3
     const gamegrid = document.getElementById("gamegrid")
     const bggrid = document.getElementById("bggrid")
-
+    const discoveredUnitsElement = document.getElementById("discovered")
     const WIDTH = 4
     const HEIGHT = 4
 
     var debug = false
 
+    //Ingame Variables
     var score = 0
-    document.getElementById("score").textContent = score
-
     var cells = []
-    var newUnitPool = [{ m: 1 }, { s: 1 }]
-    var unlockedUnits = ["m", "s"]
+    // var newUnitPool = [{ m: 1 }, { s: 1 }]
+    var unlockedUnits = ["m1", "s1"]
     var discoveredUnits = []
+
+    function resetVariables() {
+        score = 0
+        cells = []
+        // newUnitPool = [{ m: 1 }, { s: 1 }]
+        unlockedUnits = ["m1", "s1"]
+        discoveredUnits = []
+    }
 
     //Used after every round
     var wait = false
@@ -206,7 +213,7 @@
             }
             var chosenCell = Math.floor(Math.random() * emptyCells.length);
             var [x, y] = emptyCells.splice(chosenCell, 1)[0]    //Dont spawn on same cell
-            new cellGrid(x, y, newUnitPool[Math.floor(Math.random() * newUnitPool.length)])
+            new cellGrid(x, y, getUnitFromID(unlockedUnits[Math.floor(Math.random() * unlockedUnits.length)]))
         }
     }
 
@@ -274,17 +281,34 @@
         m2s_3kg1: "W",
     }
     const unitBase = ["m", "s", "kg", "A"]
-    function getUnitName(units) {
-        var intstr = ""
+    //Unit IDs and names
+    function getUnitID(units){
+        var unitID = ""
         for (const key in unitBase) {
             var unit = unitBase[key]
             if (units[unit] && units[unit] != 0) {
-                intstr += (unit + units[unit])
+                unitID += (unit + units[unit])
             }
         }
-        intstr = intstr.replace("-", "_")
-        if (intstr.length == 0) { return "1" }
-        return unitNameDict[intstr]
+        unitID = unitID.replace("-", "_")
+        return unitID
+    }
+    function getUnitFromID(unitID=""){
+        var unit={}
+        var matched=unitID.matchAll("([a-zA-Z]+)(_?[0-9]+)")
+        for (const match of matched) {
+            unit[match[1]]=Number.parseInt(match[2].replace("_","-"))
+        }
+        return unit
+    }
+    function getUnitName(units) {
+        var unitID = getUnitID(units)
+        if (unitID.length == 0) { return "1" }
+        return unitNameDict[unitID]
+    }
+    function getUnitNameFromID(unitID){
+        if (unitID.length == 0) { return "1" }
+        return unitNameDict[unitID]
     }
     function getRawName(units) {
         var name = ""
@@ -322,7 +346,7 @@
             this.cell.style.top = this.y * 125 + "px"
         }
         getName() {
-            return getUnitName(this.units) || getRawName(this.units)
+            return getUnitName(this.units) || getUnitID(this.units)
         }
         getColor() {
             var color = 0x808080
@@ -403,7 +427,7 @@
         }
     }
     //init scripts
-    function init() {
+    function initGrid() {
         cells = []
         for (let y = 0; y < HEIGHT; y++) {
             var row = []
@@ -430,9 +454,16 @@
         while (gamegrid.hasChildNodes()) {
             gamegrid.removeChild(gamegrid.childNodes[0])
         }
-        init()
+        while (discoveredUnitsElement.hasChildNodes()) {
+            discoveredUnitsElement.removeChild(discoveredUnitsElement.childNodes[0])
+        }
+        discoveredUnits = []
+        score = 0
     }
     function newGame() {
+        clear()
+        resetVariables()
+        initGrid()
         spawnCells(2)
         updateRound()
     }
@@ -497,9 +528,10 @@
                         var power = cell.units[key]
                         complexity += Math.abs(power)
                     }
-                    var name = cell.getName()
-                    if (!discoveredUnits.includes(name)) {
-                        pushDiscovered(name)
+                    var units = cell.units
+                    var unitID=getUnitID(cell.units)
+                    if (!discoveredUnits.includes(unitID)) {
+                        pushDiscovered(unitID)
                     }
                 }
             }
@@ -507,23 +539,27 @@
         score = Math.max(score, complexity)
         document.getElementById("complexity").textContent = complexity
         document.getElementById("score").textContent = score
-    }
-    function pushDiscovered(name) {
-        discoveredUnits.push(name)
-        var newDiscovered = document.createElement("div")
-        newDiscovered.classList.add("plate")
-        newDiscovered.innerHTML = "<p>" + name + "</p>"
-        document.getElementById("discovered").appendChild(newDiscovered)
         unlockNewUnitsWhenReady()
     }
+    function pushDiscovered(unitID) {
+        discoveredUnits.push(unitID)
+        pushDiscoveredToWindow(unitID)
+    }
+    function pushDiscoveredToWindow(unitID){
+        var newDiscovered = document.createElement("div")
+        newDiscovered.classList.add("plate")
+        newDiscovered.innerHTML = "<p>" + (getUnitNameFromID(unitID)||unitID) + "</p>"
+        discoveredUnitsElement.appendChild(newDiscovered)
+    }
+    const unlockableUnits={
+        kg1:8,
+        A1:13
+    }
     function unlockNewUnitsWhenReady() {
-        if (!unlockedUnits.includes("kg") && discoveredUnits.length >= 8) {
-            newUnitPool.push({ kg: 1 })
-            unlockedUnits.push("kg")
-        }
-        if (!unlockedUnits.includes("a") && discoveredUnits.length >= 13) {
-            newUnitPool.push({ A: 1 })
-            unlockedUnits.push("a")
+        for(const unitID in unlockableUnits){
+            if (!unlockedUnits.includes(unitID) && discoveredUnits.length >= unlockableUnits[unitID]) {
+                unlockedUnits.push(unitID)
+            }
         }
     }
 
@@ -533,7 +569,6 @@
             var row = cells[y]
             for (const x in row) {
                 var cell = row[x]
-
                 if (cell instanceof cellGrid) {
                     cell.updateVisuals()
                 }
@@ -543,6 +578,7 @@
             gamegrid.removeChild(cellsToDelete[i])
         }
         cellsToDelete = []
+        updateRound()
     }
 
     //save and load
@@ -557,7 +593,7 @@
                 }
             }
         }
-        return { id: "2048units_savedata", cells: cellsToExport }
+        return { id: "2048units_savedata", score: score, cells: cellsToExport, unlockedUnits: unlockedUnits,discoveredUnits:discoveredUnits}
     }
     function saveGame() {
         document.getElementById("leveldata").value = (JSON.stringify(serialize()))
@@ -567,16 +603,35 @@
     }
     function loadGame() {
         clear()
-        init()
+        initGrid()
         var savedData = loadData()
         if (savedData.id != "2048units_savedata") return
-        for (const i in savedData.cells) {
-            const cell = savedData.cells[i]
-            new cellGrid(cell.x, cell.y, cell.units)
+        if (savedData.cells!=null) {
+            for (const i in savedData.cells) {
+                const cell = savedData.cells[i]
+                new cellGrid(cell.x, cell.y, cell.units)
+            }
+        }
+        if (savedData.score!=null) {
+            score = savedData.score
+        } else {
+            score = 0
+        }
+        if (savedData.unlockedUnits!=null) {
+            unlockedUnits = savedData.unlockedUnits
+        } else {
+            unlockedUnits = []
+        }
+        if (savedData.discoveredUnits!=null) {
+            discoveredUnits = savedData.discoveredUnits
+            for(const key in discoveredUnits){
+                pushDiscoveredToWindow(discoveredUnits[key])
+            }
+        } else {
+            discoveredUnits = []
         }
         updateRound()
     }
-    init()
     newGame()
     window.addEventListener("keydown", onkeydown)
 </script>
