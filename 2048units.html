@@ -122,7 +122,7 @@
 </style>
 
 <body>
-    <div style="float: left;width: min(max-content, 100%) ;height: fit-content;">
+    <div style="float: left;width: min(max-content, 100%) ;height: fit-content;max-height: 100%;">
         <div class="info" style="float:left;width: 100%;">
             <div style="float: left;">
                 <p style="font-size: xxx-large;margin: 0;">2048 Units</p>
@@ -291,31 +291,38 @@
     var touchDown = 0
     var touchX = 0
     var touchY = 0
-    function onTouch(event = new TouchEvent()) {
-        if (event.type == "touchstart") {
-            touchX = event.changedTouches[0].clientX
-            touchY = event.changedTouches[0].clientY
+    function onTouch(event) {
+        var touchPos
+        if (event instanceof TouchEvent) {
+            touchPos = { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY }
+        } else if (event instanceof MouseEvent) {
+            touchPos = { x: event.clientX, y: event.clientY }
         }
-        else if (event.type == "touchend" && event.touches.length == 0) {
-            var dx = event.changedTouches[0].clientX - touchX
-            var dy = event.changedTouches[0].clientY - touchY
+        if (event.type == "touchstart" || event.type == "mousedown") {
+            touchX = touchPos.x
+            touchY = touchPos.y
+        }
+        else if (event.type == "mouseup" || event.type == "touchend" && event.touches.length == 0) {
+            var dx = touchPos.x - touchX
+            var dy = touchPos.y - touchY
+            var length = 100
             if (Math.abs(dx / dy) > 1.5) {
-                if (dx > 100) {
+                if (dx > length) {
                     move(DIR_RIGHT)
-                } else if (dx < -100) {
+                } else if (dx < -length) {
                     move(DIR_LEFT)
                 }
             } else if (Math.abs(dy / dx) > 1.5) {
-                if (dy > 100) {
+                if (dy > length) {
                     move(DIR_DOWN)
-                } else if (dy < -100) {
+                } else if (dy < -length) {
                     move(DIR_UP)
                 }
             }
             logDebug(dx + " " + dy)
         }
         event.preventDefault()
-        logDebug(event.type + " " + event.changedTouches[0].clientX + " " + event.changedTouches[0].clientY)
+        logDebug(event.type + " " + touchPos.x + " " + touchPos.y)
         logDebug(event)
     }
     //Coloring
@@ -739,6 +746,8 @@
     document.getElementById("touchArea").addEventListener("touchstart", onTouch)
     document.getElementById("touchArea").addEventListener("touchmove", onTouch)
     document.getElementById("touchArea").addEventListener("touchend", onTouch)
+    document.getElementById("touchArea").addEventListener("mousedown", onTouch)
+    document.getElementById("touchArea").addEventListener("mouseup", onTouch)
 </script>
 
 </html>
