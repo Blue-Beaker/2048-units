@@ -2,7 +2,7 @@
 <html style="width: 99%;height: 99%;">
 
 <head>
-    <meta name="viewport" content="width=device-width,height=window-height">
+    <meta name="viewport" content="width=device-width,height=window-height, initial-scale=1.0">
     <title>2048 Units</title>
 </head>
 <style type="text/css">
@@ -19,26 +19,35 @@
         height: 95%;
     }
 
-    /* .area{
-        border: 1px;
-        border-color: #aaaaaa;
-        border-style: solid;
-    } */
     .cell {
-        background-color: #808080;
         border-radius: 10px;
         border-style: none;
         text-align: center;
         position: absolute;
-        margin: 10px;
-        width: 115px;
-        height: 115px;
+        --margin: 2%;
+        --size: calc( (100% - 2% * 5) / 4);
+        --x: 0;
+        --y: 0;
+        margin: var(--margin);
+        width: var(--size);
+        height: var(--size);
+        left: calc(var(--x) * ( var(--size) + var(--margin) ) );
+        top: calc(var(--y) * ( var(--size) + var(--margin) ) );
+        offset-anchor: center;
+        font-size: larger;
+    }
+
+    .fg {
+        background-color: #808080;
         z-index: 3;
         transition: left 0.2s, top 0.2s ease-in;
         -webkit-transition: left 0.2s, top 0.2s ease-in;
         animation: spawn 0.3s ease-in;
-        offset-anchor: center;
-        font-size: larger;
+    }
+
+    .bg {
+        background-color: #333333;
+        z-index: 1;
     }
 
     .info_cell {
@@ -62,10 +71,11 @@
         text-align: center;
         margin: 0px;
         position: absolute;
-        top:50%;
+        top: 50%;
         left: 50%;
-        transform: translate(-50%,-60%);
+        transform: translate(-50%, -60%);
     }
+
     .largeFont {
         font-size: 2rem;
     }
@@ -78,7 +88,7 @@
         margin: 10px;
     }
 
-    textarea{
+    textarea {
         font-family: sans-serif;
         background-color: #222222;
         color: #ffffff;
@@ -109,7 +119,7 @@
 </style>
 
 <body>
-    <div style="float: left;width: min-content;">
+    <div style="float: left;width: min-content;height: 100%;">
         <div class="info" style="float:left;width: 100%;">
             <div style="float: left;">
                 <p style="font-size: xxx-large;margin-top: 0;">2048 Units</p>
@@ -125,24 +135,29 @@
         </div>
         <div class="area" style="float: left;width: 510px;aspect-ratio: 1;position: relative;">
             <div id="bg" class="grid"
-                style="width: 510px;height: 510px;position: absolute;border-radius: 20px;background-color: #444444;">
+                style="width: 100%;aspect-ratio: 1;position: absolute;border-radius: 20px;background-color: #444444;">
                 <div id="bggrid" class="grid" style="width: 100%;height: 100%;position: absolute;">
 
                 </div>
                 <div id="gamegrid" class="grid" style="width: 100%;height: 100%;position: absolute;">
 
                 </div>
+                <div id="touchArea" style="width: 100%;height: 100%;position: absolute;z-index: 100;">
+
+                </div>
             </div>
         </div>
     </div>
     <div id="otherinfo" style="float: left;max-height: 100%;max-width:min-content;">
-        <div class="plate">
+        <div class="plate" style="float: inline-start;">
             <p>Discovered Units:</p>
-            <div id="discovered" style="max-width: max-content;max-height: max-content;">
+            <div id="discovered" style="float: inline-start; width: fit-content;height: auto;">
 
             </div>
         </div>
-        <div class="plate">
+
+        <div class="plate" style="float:inline-start;">
+            <p>Save & Load:</p>
             <button onclick="saveGame()">
                 Save
             </button>
@@ -150,7 +165,7 @@
                 Load
             </button>
             <form>
-                <textarea id="leveldata" >
+                <textarea id="leveldata" style="width: inherit;">
 
                 </textarea>
             </form>
@@ -250,44 +265,71 @@
             new cellGrid(x, y, getUnitFromID(unlockedUnits[Math.floor(Math.random() * unlockedUnits.length)]))
         }
     }
-
+    const KEYMAPPING = {
+        ArrowUp: DIR_UP,
+        ArrowDown: DIR_DOWN,
+        ArrowLeft: DIR_LEFT,
+        ArrowRight: DIR_RIGHT,
+        w: DIR_UP,
+        s: DIR_DOWN,
+        a: DIR_LEFT,
+        d: DIR_RIGHT,
+    }
     //Handle keyboard event
     function onkeydown(event) {
         if (wait) { return }
-        switch (event.key) {
-            case "ArrowUp" || "w":
-                move(DIR_UP)
-                break;
-            case "ArrowDown" || "s":
-                move(DIR_DOWN)
-                break;
-            case "ArrowLeft" || "a":
-                move(DIR_LEFT)
-                break;
-            case "ArrowRight" || "d":
-                move(DIR_RIGHT)
-                break;
-
+        if (document.activeElement instanceof HTMLTextAreaElement) { return }
+        if (KEYMAPPING[event.key] == null) { return }
+        move(KEYMAPPING[event.key])
+        event.preventDefault()
+    }
+    var touchDown = 0
+    var touchX = 0
+    var touchY = 0
+    function onTouch(event = new TouchEvent()) {
+        if (event.type == "touchstart") {
+            touchX = event.changedTouches[0].clientX
+            touchY = event.changedTouches[0].clientY
         }
+        else if (event.type == "touchend" && event.touches.length == 0) {
+            var dx = event.changedTouches[0].clientX - touchX
+            var dy = event.changedTouches[0].clientY - touchY
+            if (Math.abs(dx / dy) > 4) {
+                if (dx > 100) {
+                    move(DIR_RIGHT)
+                } else if (dx < -100) {
+                    move(DIR_LEFT)
+                }
+            } else if (Math.abs(dy / dx) > 4) {
+                if (dy > 100) {
+                    move(DIR_DOWN)
+                } else if (dy < -100) {
+                    move(DIR_UP)
+                }
+            }
+            logDebug(dx + " " + dy)
+        }
+        event.preventDefault()
+        logDebug(event.type + " " + event.changedTouches[0].clientX + " " + event.changedTouches[0].clientY)
         logDebug(event)
     }
     //Coloring
     function getColor(units) {
-            var color = 0x808080
-            if (units.m != null) {
-                color += units.m * 0x272700
-            }
-            if (units.s != null) {
-                color += units.s * 0x2700
-            }
-            if (units.kg != null) {
-                color += units.kg * 0x270000
-            }
-            if (units.A != null) {
-                color += units.A * 0x27
-            }
-            return color.toString(16)
+        var color = 0x808080
+        if (units.m != null) {
+            color += units.m * 0x272700
         }
+        if (units.s != null) {
+            color += units.s * 0x2700
+        }
+        if (units.kg != null) {
+            color += units.kg * 0x270000
+        }
+        if (units.A != null) {
+            color += units.A * 0x27
+        }
+        return color.toString(16)
+    }
     //Logic
     function multiply(units1, units2) {
         var units3 = {}
@@ -395,6 +437,7 @@
             this.y = y
             this.cell = document.createElement("div")
             this.cell.classList.add("cell")
+            this.cell.classList.add("fg")
             gamegrid.appendChild(this.cell)
             this.updateVisuals()
             this.updatePosition()
@@ -405,8 +448,10 @@
             this.cell.style.backgroundColor = "#" + this.getColor()
         }
         updatePosition() {
-            this.cell.style.left = this.x * 125 + "px"
-            this.cell.style.top = this.y * 125 + "px"
+            this.cell.style.setProperty("--x",this.x)
+            this.cell.style.setProperty("--y",this.y)
+            // this.cell.style.left = this.x * 125 + "px"
+            // this.cell.style.top = this.y * 125 + "px"
         }
         getName() {
             return getUnitName(this.units) || getUnitID(this.units)
@@ -483,14 +528,13 @@
             var row = []
             for (let x = 0; x < WIDTH; x++) {
                 var cell = document.createElement("div")
-                cell.classList.add("plate")
-                cell.style.width = "115px"
-                cell.style.position = "absolute"
-                cell.style.height = cell.style.width
+                cell.classList.add("cell")
+                cell.classList.add("bg")
                 cell.style.float = "left"
-                cell.style.margin = "10px"
-                cell.style.left = x * 125 + "px"
-                cell.style.top = y * 125 + "px"
+                cell.style.setProperty("--x",x)
+                cell.style.setProperty("--y",y)
+                // cell.style.left = x * 125 + "px"
+                // cell.style.top = y * 125 + "px"
                 bggrid.appendChild(cell)
                 row[x] = null
             }
@@ -597,9 +641,9 @@
     }
     function pushDiscoveredToWindow(unitID) {
         var newDiscovered = document.createElement("div")
-        newDiscovered.style.backgroundColor="#"+getColor(getUnitFromID(unitID))
+        newDiscovered.style.backgroundColor = "#" + getColor(getUnitFromID(unitID))
         newDiscovered.classList.add("info_cell")
-        newDiscovered.innerHTML = "<p class='cellLabel'>"+(getUnitNameFromID(unitID) || unitID)+"</p>"
+        newDiscovered.innerHTML = "<p class='cellLabel'>" + (getUnitNameFromID(unitID) || unitID) + "</p>"
         discoveredUnitsElement.appendChild(newDiscovered)
     }
     const unlockableUnits = {
@@ -627,7 +671,8 @@
             }
         }
         for (const i in cellsToDelete) {
-            gamegrid.removeChild(cellsToDelete[i])
+            if (cellsToDelete[i].parentNode == gamegrid)
+                gamegrid.removeChild(cellsToDelete[i])
         }
         cellsToDelete = []
         updateRound()
@@ -686,6 +731,9 @@
     }
     newGame()
     window.addEventListener("keydown", onkeydown)
+    document.getElementById("touchArea").addEventListener("touchstart", onTouch)
+    document.getElementById("touchArea").addEventListener("touchmove", onTouch)
+    document.getElementById("touchArea").addEventListener("touchend", onTouch)
 </script>
 
 </html>
