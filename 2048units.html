@@ -448,8 +448,8 @@
                 getCell(x, y).remove()
             }
             this.units = units
-            this.x = x
-            this.y = y
+            this.x = parseInt(x)
+            this.y = parseInt(y)
             this.cell = document.createElement("div")
             this.cell.classList.add("cell")
             this.cell.classList.add("fg")
@@ -692,11 +692,37 @@
         cellsToDelete = []
         updateRound()
     }
-
-    //save and load
-    function serialize() {
-        var savedata=Object.assign({},gameState)
-        savedata.id= "2048units_savedata"
+    //Manipulate cellV2
+    function dumpGrid(){
+        var cellsToExportV2=[]
+        for (const y in cells) {
+            var rowToExport=[]
+            var row = cells[y]
+            for (const x in row) {
+                var cell = row[x]
+                if (cell instanceof cellGrid) {
+                    rowToExport[x]=cell.units
+                }else{
+                    rowToExport[x]=null
+                }
+            }
+            cellsToExportV2[y]=rowToExport
+        }
+        return cellsToExportV2
+    }
+    function loadGrid(cellsV2){
+        for (const y in cellsV2) {
+            var row = cellsV2[y]
+            for (const x in row) {
+                var cell = row[x]
+                if(cell!=null){
+                    new cellGrid(x, y, cell)
+                }
+            }
+        }
+    }
+    //Deprecated old save format
+    function saveGridV1(){
         var cellsToExport = []
         for (const y in cells) {
             var row = cells[y]
@@ -707,7 +733,15 @@
                 }
             }
         }
-        savedata.cells=cellsToExport
+        
+        return cellsToExport
+    }
+    //save and load
+    function serialize() {
+        var savedata=Object.assign({},gameState)
+        savedata.id= "2048units_savedata"
+        // savedata.cells=saveGridV1()
+        savedata.cellsV2=dumpGrid()
         return savedata
     }
     function saveGame() {
@@ -721,7 +755,10 @@
         initGrid()
         var savedData = loadData()
         if (savedData.id != "2048units_savedata") return
-        if (savedData.cells != null) {
+        if(savedData.cellsV2!=null){
+            loadGrid(savedData.cellsV2)
+        }
+        else if (savedData.cells != null) {
             for (const i in savedData.cells) {
                 const cell = savedData.cells[i]
                 new cellGrid(cell.x, cell.y, cell.units)
