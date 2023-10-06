@@ -321,7 +321,7 @@
 
         if (KEYMAPPING[event.key] != null) {
             move(KEYMAPPING[event.key])
-        } else if (event.key == "Backspace") {
+        } else if (event.key == "Backspace" || event.key == "Z") {
             undo()
         }
         else {

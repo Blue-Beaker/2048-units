@@ -8,9 +8,9 @@
 
 ### Controls/控制  
 移动：↑←↓→/WASD/拖拽  
-撤销：UNDO按钮或鼠标右键  
+撤销：UNDO按钮,退格键,Z或鼠标右键  
 Movement：↑←↓→/WASD/Swipe  
-Undo: UNDO button or right mouse button  
+Undo: UNDO button, Backspace, Z or right mouse button  
 
 
 
