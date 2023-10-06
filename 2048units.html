@@ -77,6 +77,17 @@
         transform: translate(-50%, -60%);
     }
 
+    .cellCornerMark {
+        font-family: sans-serif;
+        text-align: center;
+        margin: 0px;
+        position: absolute;
+        font-size: 1rem;
+        top: 90%;
+        left: 90%;
+        transform: translate(-100%, -100%);
+    }
+
     .largeFont {
         font-size: 2rem;
     }
@@ -373,31 +384,31 @@
         }
         return units3
     }
+
     const unitNameDict = {
-        m1: "m",
-        m2: "m²",
-        m3: "m³",
-        s1: "s",
-        s_1: "Hz",
-        m1s_1: "m/s",
-        m1s_2: "m/s²",
-        kg1: "kg",
-        m_3kg1: "kg/m³",
-        m1s_1kg1: "kg·m/s",
-        m1s_2kg1: "N",
-        m1s_1kg1: "N·s",
-        m_1s_2kg1: "Pa",
-        m2s_2kg1: "J",
-        m2s_3kg1: "W",
-        A1: "A",
-        s1A1: "C",
-        m_1A1: "A/m",
-        m2s_3kg1A_1: "V",
-        m1s_3kg1A_1: "V/m",
-        m2s_3kg1A_2: "Ω",
-        m_2s4kg_1A2: "F",
-        s_2kg1A_1: "T",
-        m2s_2kg1A_1: "Wb",
+        m1: ["m","L"],
+        m2: ["m²","S"],
+        m3: ["m³","V"],
+        s1: ["s","t"],
+        s_1: ["Hz","f"],
+        m1s_1: ["m/s","v"],
+        m1s_2: ["m/s²","a"],
+        kg1: ["kg","m"],
+        m_3kg1: ["kg/m³","ρ"],
+        m1s_2kg1: ["N","F,G"],
+        m1s_1kg1: ["<div style='font-size:80%;'>kg⋅m/s\nN⋅s</div>","P,I"],
+        m_1s_2kg1: ["Pa","p"],
+        m2s_2kg1: ["J","E,W,Q"],
+        m2s_3kg1: ["W","P"],
+        A1: ["A","I"],
+        s1A1: ["C","Q"],
+        m_1A1: ["A/m","H"],
+        m2s_3kg1A_1: ["V","U,E,φ"],
+        m1s_3kg1A_1: ["V/m","E"],
+        m2s_3kg1A_2: ["Ω","R"],
+        m_2s4kg_1A2: ["F","C"],
+        s_2kg1A_1: ["T","B"],
+        m2s_2kg1A_1: ["Wb","Φ"],
     }
     const unitBase = ["m", "s", "kg", "A"]
     //Unit IDs and names
@@ -423,12 +434,17 @@
     }
     function getUnitName(units) {
         var unitID = getUnitID(units)
-        if (unitID.length == 0) { return "1" }
-        return unitNameDict[unitID]
+        return getUnitNameFromID(unitID)
     }
     function getUnitNameFromID(unitID) {
         if (unitID.length == 0) { return "1" }
-        return unitNameDict[unitID]
+        if(unitNameDict[unitID]==null){return undefined}
+        return unitNameDict[unitID][0]
+    }
+    function getSymbol(unitID) {
+        if (unitID.length == 0) { return "" }
+        if(unitNameDict[unitID]==null){return undefined}
+        return unitNameDict[unitID][1]
     }
     function getRawName(units) {
         var name = ""
@@ -459,7 +475,7 @@
             setCell(x, y, this)
         }
         updateVisuals() {
-            this.cell.innerHTML = "<div class='cellLabel largeFont'>" + this.getName() + "</div>"
+            this.cell.innerHTML = "<div class='cellLabel largeFont'>" + this.getName() + "</div>"+"<div class='cellCornerMark'>"+this.getSymbol()+"</div>"
             this.cell.style.backgroundColor = "#" + this.getColor()
         }
         updatePosition() {
@@ -468,8 +484,14 @@
             // this.cell.style.left = this.x * 125 + "px"
             // this.cell.style.top = this.y * 125 + "px"
         }
+        getUnitID(){
+            return getUnitID(this.units)
+        }
         getName() {
             return getUnitName(this.units) || getUnitID(this.units)
+        }
+        getSymbol(){
+            return getSymbol(this.getUnitID())
         }
         getColor() {
             return getColor(this.units)
