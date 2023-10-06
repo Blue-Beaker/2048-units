@@ -9,6 +9,7 @@
     /* .grid{
       background-color:#aaaaaa;
     } */
+
     .grid td {
         background-color: #222222;
     }
@@ -121,6 +122,21 @@
         width: 100%;
     }
 
+    button{
+        color: #ffffff;
+        background-color: #606060;
+        margin: 0.2rem;
+        border-radius: 5px;
+        border-width: 0;
+        padding: 0.5rem;
+    }
+    button:hover{
+        background-color: #808080;
+    }
+    button:active{
+        background-color: #222222;
+    }
+
     @keyframes spawn {
         0% {
             scale: 110%;
@@ -139,11 +155,11 @@
                 <p style="font-size: xxx-large;margin: 0;">2048 Units</p>
             </div>
             <div class="plate" style="float: left;padding: 0.5rem;">
-                <div style="float: left;">
+                <div style="float: left;margin: 0.2rem;">
                     <p style="text-align: center;">SCORE</p>
                     <p id="score" style="text-align: center;"></p>
                 </div>
-                <div style="float: left;">
+                <div style="float: left;margin: 0.2rem;">
                     <p style="text-align: center;">COMPLEXITY</p>
                     <p id="complexity" style="text-align: center;"></p>
                 </div>
