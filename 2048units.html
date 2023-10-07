@@ -123,7 +123,7 @@
         width: 100%;
     }
 
-    button{
+    button {
         color: #ffffff;
         background-color: #606060;
         margin: 0.2rem;
@@ -131,10 +131,12 @@
         border-width: 0;
         padding: 0.5rem;
     }
-    button:hover{
+
+    button:hover {
         background-color: #808080;
     }
-    button:active{
+
+    button:active {
         background-color: #222222;
     }
 
@@ -865,6 +867,7 @@
     document.getElementById("touchArea").addEventListener("mousedown", onTouch)
     document.getElementById("touchArea").addEventListener("mouseup", onTouch)
     document.getElementById("touchArea").addEventListener("contextmenu", (event) => { event.preventDefault() })
+    window.addEventListener("beforeunload", (event) => { event.preventDefault(); event.returnValue = ("Are you sure? unsaved progress will be lost!") })
 </script>
 
 </html>
