@@ -200,6 +200,9 @@
             <button onclick="loadGame()">
                 Load
             </button>
+            <button onclick="newGame()">
+                New Game
+            </button>
             <form>
                 <textarea id="leveldata" style="max-width: 30em;">
 
@@ -750,6 +753,7 @@
         cellsToDelete = []
         updateRound()
         logUndo()
+        saveState()
     }
     function logUndo() {
         undos.push(serialize())
@@ -859,7 +863,28 @@
         }
         updateRound()
     }
-    newGame()
+    //Save to cookie
+    function saveState(){
+        setCookie("state",JSON.stringify(serialize()))
+    }
+    function loadStateFromCookie(){
+        loadGameFromData(JSON.parse(getCookie("state")))
+    }
+    function setCookie(cname,cvalue){
+        document.cookie=cname+"="+cvalue+";SameSite=Strict;expires=Thu, 01 Jan 3000 00:00:00 GMT"
+    }
+    function removeCookie(cname){
+        document.cookie=cname+"=;SameSite=Strict;expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    }
+    function getCookie(cname)
+    {
+        return document.cookie
+            .split("; ")
+            .find((row) => row.startsWith(cname+"="))
+            ?.split("=")[1];
+    }
+
+    //Init code
     window.addEventListener("keydown", onkeydown)
     document.getElementById("touchArea").addEventListener("touchstart", onTouch)
     document.getElementById("touchArea").addEventListener("touchmove", onTouch)
@@ -868,6 +893,12 @@
     document.getElementById("touchArea").addEventListener("mouseup", onTouch)
     document.getElementById("touchArea").addEventListener("contextmenu", (event) => { event.preventDefault() })
     window.addEventListener("beforeunload", (event) => { event.preventDefault(); event.returnValue = ("Are you sure? unsaved progress will be lost!") })
+    //Resume last game if there is
+    if(getCookie("state")){
+        loadStateFromCookie()
+    }else{
+        newGame()
+    }
 </script>
 
 </html>
