@@ -15,4 +15,4 @@ Undo: UNDO button, Backspace, Z or right mouse button
 
 
 ### LICENSE/授权  
-The project is licensed under GPLv3 License.  
+The script section is licensed under [MIT License](https://mit-license.org/), while other section is licensed under [CC-BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).  
