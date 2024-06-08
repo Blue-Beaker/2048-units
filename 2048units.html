@@ -6,13 +6,6 @@
     <title>2048 Units</title>
 </head>
 <style type="text/css">
-    /* .grid{
-      background-color:#aaaaaa;
-    } */
-
-    .grid td {
-        background-color: #222222;
-    }
 
     body {
         background-color: #222222;
@@ -20,14 +13,25 @@
         height: 95%;
         color-scheme: dark;
     }
-
+    .basegrid{
+        --columns: 4;
+        --rows: 4;
+        --width2:calc(var(--rows) * ( 5.5rem ) + 0.5rem );
+        --height2: calc(var(--columns) * ( 5.5rem ) + 0.5rem );
+        width: calc(var(--rows) * ( 5.5rem ) + 0.5rem );
+        height: calc(var(--columns) * ( 5.5rem ) + 0.5rem );
+        border-radius: 2%;
+        background-color: hsl(0, 0%, 27%);
+        --scale: min(calc( 95vw / var(--width2) ), calc( 95vh / var(--height2) ));
+        transform: scale( var(--scale) );
+    }
     .cell {
         border-radius: 5%;
         border-style: none;
         text-align: center;
         position: absolute;
-        --margin: 2%;
-        --size: calc((100% - 2% * 5) / 4);
+        --margin: 0.5rem;
+        --size: 5rem;
         --x: 0;
         --y: 0;
         margin: var(--margin);
@@ -91,7 +95,7 @@
     }
 
     .largeFont {
-        font-size: 2rem;
+        font-size: 1.5rem;
     }
 
     .plate {
@@ -219,8 +223,7 @@
             </div>
         </div>
         <div class="area">
-            <div id="bg" class="grid"
-                style="width: 100%;aspect-ratio: 1;position: absolute;border-radius: 2%;background-color: #444444;">
+            <div id="basegrid" class="grid basegrid">
                 <div id="bggrid" class="grid" style="width: 100%;height: 100%;position: absolute;">
 
                 </div>
@@ -250,9 +253,6 @@
                         <button onclick="importState()" style="flex: 1;">
                             Import
                         </button>
-                        <button onclick="newGame()" style="flex: 1;">
-                            New Game
-                        </button>
                     </div>
                     <form>
                         <textarea id="leveldata" style="flex:1">
@@ -262,6 +262,13 @@
                         <p>The game saves state automatically on quit.</p>
                         <p>However undo history isn't saved.</p>
                     </div>
+                    
+                </div>
+                <div class="plate">
+                Grid Size<input id="gridSizeSet" type="number">
+                <button onclick="newGame()" style="flex: 1;">
+                    New Game
+                </button>
                 </div>
                 <div class="plate" style="float:inline-start">
                     <p>A game about physical units.</p>
@@ -284,8 +291,8 @@
     const gamegrid = document.getElementById("gamegrid")
     const bggrid = document.getElementById("bggrid")
     const discoveredUnitsElement = document.getElementById("discoveredUnits")
-    const WIDTH = 4
-    const HEIGHT = 4
+    const WIDTH = 8
+    const HEIGHT = 8
 
     var debug = false
 
@@ -386,7 +393,7 @@
         logDebug(event)
         if (wait) { return }
         if (document.activeElement instanceof HTMLTextAreaElement) { return }
-
+        if (document.activeElement instanceof HTMLInputElement) { return }
         if (KEYMAPPING[event.key] != null) {
             move(KEYMAPPING[event.key])
         } else if (event.key == "Backspace" || event.key == "z") {
@@ -661,6 +668,9 @@
     }
     //init scripts
     function initGrid() {
+        var basegrid = document.getElementById("basegrid")
+        basegrid.style.setProperty("--columns",WIDTH)
+        basegrid.style.setProperty("--rows",HEIGHT)
         cells = []
         for (let y = 0; y < HEIGHT; y++) {
             var row = []
@@ -839,7 +849,7 @@
             for (const x in row) {
                 var cell = row[x]
                 if (cell instanceof cellGrid) {
-                    rowToExport[x] = cell.units
+                    rowToExport[x] = cell.getUnitID()
                 } else {
                     rowToExport[x] = null
                 }
@@ -853,6 +863,9 @@
             var row = cellsV2[y]
             for (const x in row) {
                 var cell = row[x]
+                if(typeof(cell)=='string'){
+                    new cellGrid(x, y, getUnitFromID(cell))
+                }else
                 if (cell != null) {
                     new cellGrid(x, y, cell)
                 }
