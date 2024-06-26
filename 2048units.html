@@ -6,32 +6,54 @@
     <title>2048 Units</title>
 </head>
 <style type="text/css">
-
     body {
         background-color: #222222;
         width: 95%;
         height: 95%;
         color-scheme: dark;
     }
-    .basegrid{
+
+    .area {
+        /* width: 95vw;
+        aspect-ratio: 1;
+        min-width: 20em;
+        max-width: 95vh; */
+        flex: 4;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .basegrid {
         --columns: 4;
         --rows: 4;
-        --width2:calc(var(--rows) * ( 5.5rem ) + 0.5rem );
-        --height2: calc(var(--columns) * ( 5.5rem ) + 0.5rem );
-        width: calc(var(--rows) * ( 5.5rem ) + 0.5rem );
-        height: calc(var(--columns) * ( 5.5rem ) + 0.5rem );
-        border-radius: 2%;
+        --width2: calc(var(--rows) * (5.5em) + 0.5em);
+        --height2: calc(var(--columns) * (5.5em) + 0.5em);
+        /*
+        --fit-view-size: min( 95vh ,95vw );
+        width: calc( var(--fit-view-size) );
+        height: calc( var(--fit-view-size) );
+        font-size: calc( var(--fit-view-size) * 0.165 / max(var(--rows), var(--columns)));
+        */
+        width: calc( var(--fit-view-size) * (var(--columns) + 0.1) );
+        height: calc( var(--fit-view-size) * (var(--rows) + 0.1) );
+        --fit-view-size: min( 95vh / ( var(--rows) + 0.1 ) , 95vw / ( var(--columns) + 0.1 ));
+        border-radius: calc( var(--fit-view-size) * 0.05 );
         background-color: hsl(0, 0%, 27%);
-        --scale: min(calc( 95vw / var(--width2) ), calc( 95vh / var(--height2) ));
-        transform: scale( var(--scale) );
+        font-size: calc( var(--fit-view-size) * 0.165 );
     }
+    .overgrid{
+        position: absolute;
+    }
+
     .cell {
         border-radius: 5%;
         border-style: none;
         text-align: center;
         position: absolute;
-        --margin: 0.5rem;
-        --size: 5rem;
+        --margin: 0.5em;
+        --size: 4.5em;
         --x: 0;
         --y: 0;
         margin: var(--margin);
@@ -63,7 +85,7 @@
         text-align: center;
         position: relative;
         float: left;
-        margin: 0.2rem;
+        margin: 0.2em;
         width: 3em;
         height: 3em;
         z-index: 3;
@@ -77,7 +99,7 @@
         text-align: center;
         margin: 0px;
         position: absolute;
-        font-size: 1rem;
+        font-size: 1em;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -60%);
@@ -88,39 +110,39 @@
         text-align: center;
         margin: 0px;
         position: absolute;
-        font-size: 1rem;
+        font-size: 1em;
         top: 90%;
         left: 90%;
         transform: translate(-100%, -100%);
     }
 
     .largeFont {
-        font-size: 1.5rem;
+        font-size: 1.5em;
     }
 
     .plate {
         background-color: #333333;
-        border-radius: 0.7rem;
+        border-radius: 0.7em;
         border-style: none;
         z-index: 1;
-        margin: 0.5rem;
+        margin: 0.5em;
     }
 
     .toast {
         background-color: #444444;
-        box-shadow: 0 0 1rem 0 #000000;
+        box-shadow: 0 0 1em 0 #000000;
         position: fixed;
-        right: 1rem;
-        bottom: 1rem;
-        border-radius: 0.7rem;
+        right: 1em;
+        bottom: 1em;
+        border-radius: 0.7em;
         border-style: none;
         z-index: 1;
-        margin: 0.5rem;
-        padding: 1rem;
+        margin: 0.5em;
+        padding: 1em;
         opacity: 0%;
         z-index: 99;
         transition: 0.3s ease-in;
-        max-width: calc(100vw - 5rem);
+        max-width: calc(100vw - 5em);
     }
 
 
@@ -128,8 +150,8 @@
         font-family: sans-serif;
         background-color: #222222;
         color: #ffffff;
-        border-radius: 0.5rem;
-        margin: 0.3rem;
+        border-radius: 0.5em;
+        margin: 0.3em;
         border-width: 0;
     }
 
@@ -140,17 +162,17 @@
 
     p {
         text-align: center;
-        margin: 0.2rem;
+        margin: 0.2em;
         width: 100%;
     }
 
     button {
         color: #ffffff;
         background-color: #606060;
-        margin: 0.2rem;
-        border-radius: 0.5rem;
+        margin: 0.2em;
+        border-radius: 0.5em;
         border-width: 0;
-        padding: 0.5rem;
+        padding: 0.5em;
     }
 
     button:hover {
@@ -180,15 +202,6 @@
         flex-direction: column;
     }
 
-    .area {
-        width: 95vw;
-        min-width: 20rem;
-        max-width: 95vh;
-        flex: 4;
-        aspect-ratio: 1;
-        position: relative;
-    }
-
     @keyframes spawn {
         0% {
             scale: 110%;
@@ -207,13 +220,13 @@
                 <div style="float: left;">
                     <p style="font-size: xxx-large;margin: 0;">2048 Units</p>
                 </div>
-                <div class="plate" style="float: left;padding: 0.5rem;">
+                <div class="plate" style="float: left;padding: 0.5em;">
                     <div class="flex2">
-                        <div style="float: left;margin: 0.2rem;flex:2">
+                        <div style="float: left;margin: 0.2em;flex:2">
                             <p style="text-align: center;">SCORE</p>
                             <p id="score" style="text-align: center;"></p>
                         </div>
-                        <div style="float: left;margin: 0.2rem;flex:2">
+                        <div style="float: left;margin: 0.2em;flex:2">
                             <p style="text-align: center;">COMPLEXITY</p>
                             <p id="complexity" style="text-align: center;"></p>
                         </div>
@@ -224,20 +237,22 @@
         </div>
         <div class="area">
             <div id="basegrid" class="grid basegrid">
-                <div id="bggrid" class="grid" style="width: 100%;height: 100%;position: absolute;">
+                <div id="bggrid" class="grid overgrid">
 
                 </div>
-                <div id="gamegrid" class="grid" style="width: 100%;height: 100%;position: absolute;">
+                <div id="gamegrid" class="grid overgrid">
 
                 </div>
-                <div id="touchArea" style="width: 100%;height: 100%;position: absolute;z-index: 100;">
-
-                </div>
+            </div>
+            <div id="touchArea" class="overgrid" style="z-index: 100;
+            width: 100%;
+            height: 100%;">
+                
             </div>
         </div>
         <div id="otherinfo" style="flex:2;float: left;max-height: 100%;">
             <div class="flex-col">
-                <div class="plate" style="float: inline-start;padding: 0.3rem;">
+                <div class="plate" style="float: inline-start;padding: 0.3em;">
                     <p>Discovered Units:</p>
                     <div id="discoveredUnits" style="float: inline-start; width: 100%;height: auto;">
 
@@ -262,18 +277,23 @@
                         <p>The game saves state automatically on quit.</p>
                         <p>However undo history isn't saved.</p>
                     </div>
-                    
+
                 </div>
                 <div class="plate">
-                Grid Size<input id="gridSizeSet" type="number">
-                <button onclick="newGame()" style="flex: 1;">
-                    New Game
-                </button>
+                    Grid size: <input id="gridWidthSet" type="number" name="Columns" min="3" max="16"
+                        value="4" size="3">×
+                    <input id="gridHeightSet" type="number" name="Rows" min="3" max="16"
+                        value="4" size="3">
+                    <button onclick="newGame()" style="flex: 1;">
+                        New Game
+                    </button>
                 </div>
                 <div class="plate" style="float:inline-start">
                     <p>A game about physical units.</p>
-                    <a href="https://github.com/Blue-Beaker/2048-units"><p>Source Code</p></a>
-                </div> 
+                    <a href="https://github.com/Blue-Beaker/2048-units">
+                        <p>Source Code</p>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -291,8 +311,11 @@
     const gamegrid = document.getElementById("gamegrid")
     const bggrid = document.getElementById("bggrid")
     const discoveredUnitsElement = document.getElementById("discoveredUnits")
-    const WIDTH = 8
-    const HEIGHT = 8
+
+    const GRID_WIDTH_SETTER = document.getElementById("gridWidthSet")
+    const GRID_HEIGHT_SETTER = document.getElementById("gridHeightSet")
+    var WIDTH = 4
+    var HEIGHT = 4
 
     var debug = false
 
@@ -669,8 +692,8 @@
     //init scripts
     function initGrid() {
         var basegrid = document.getElementById("basegrid")
-        basegrid.style.setProperty("--columns",WIDTH)
-        basegrid.style.setProperty("--rows",HEIGHT)
+        basegrid.style.setProperty("--columns", WIDTH)
+        basegrid.style.setProperty("--rows", HEIGHT)
         cells = []
         for (let y = 0; y < HEIGHT; y++) {
             var row = []
@@ -703,6 +726,8 @@
         gameState.score = 0
     }
     function newGame() {
+        WIDTH = GRID_WIDTH_SETTER.value
+        HEIGHT = GRID_HEIGHT_SETTER.value
         clear()
         resetVariables()
         initGrid()
@@ -727,14 +752,14 @@
                 }
             }
         } else if (dir == DIR_LEFT) {
-            for (let x = 0; x < HEIGHT; x++) {
-                for (let y = 0; y < WIDTH; y++) {
+            for (let x = 0; x < WIDTH; x++) {
+                for (let y = 0; y < HEIGHT; y++) {
                     trymove(x, y, dir)
                 }
             }
         } else if (dir == DIR_RIGHT) {
-            for (let x = HEIGHT - 1; x >= 0; x--) {
-                for (let y = 0; y < WIDTH; y++) {
+            for (let x = WIDTH - 1; x >= 0; x--) {
+                for (let y = 0; y < HEIGHT; y++) {
                     trymove(x, y, dir)
                 }
             }
@@ -863,12 +888,12 @@
             var row = cellsV2[y]
             for (const x in row) {
                 var cell = row[x]
-                if(typeof(cell)=='string'){
+                if (typeof (cell) == 'string') {
                     new cellGrid(x, y, getUnitFromID(cell))
-                }else
-                if (cell != null) {
-                    new cellGrid(x, y, cell)
-                }
+                } else
+                    if (cell != null) {
+                        new cellGrid(x, y, cell)
+                    }
             }
         }
     }
@@ -893,6 +918,8 @@
         savedata.id = "2048units_savedata"
         // savedata.cells=saveGridV1()
         savedata.cellsV2 = dumpGrid()
+        savedata.gridWidth = WIDTH
+        savedata.gridHeight = HEIGHT
         return savedata
     }
     function exportState() {
@@ -903,17 +930,19 @@
         return JSON.parse(document.getElementById("leveldata").value)
     }
     function importState() {
-        try{
+        try {
             var savedData = loadData()
             loadGameFromData(savedData)
             toast("Loaded!")
         }
-        catch(err){
+        catch (err) {
             toast("Paste the code in the box below first!")
         }
     }
     function loadGameFromData(savedData) {
         if (savedData.id != "2048units_savedata") return;
+        WIDTH = savedData.gridWidth || 4
+        HEIGHT = savedData.gridHeight || 4
         clear()
         initGrid()
         if (savedData.cellsV2 != null) {
@@ -964,14 +993,14 @@
             .find((row) => row.startsWith(cname + "="))
             ?.split("=")[1];
     }
-    var lastToast=null;
+    var lastToast = null;
     function toast(text) {
-        if(lastToast){
+        if (lastToast) {
             clearTimeout(lastToast);
         }
-        document.getElementById("toast").innerHTML="<div>"+text+"</div>"
-        document.getElementById("toast").style.setProperty("opacity","100%")
-        lastToast=setTimeout(()=>{document.getElementById("toast").style.setProperty("opacity","0%")},2000)
+        document.getElementById("toast").innerHTML = "<div>" + text + "</div>"
+        document.getElementById("toast").style.setProperty("opacity", "100%")
+        lastToast = setTimeout(() => { document.getElementById("toast").style.setProperty("opacity", "0%") }, 2000)
     }
     //Init code
     window.addEventListener("keydown", onkeydown)
