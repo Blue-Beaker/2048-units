@@ -540,8 +540,9 @@
         m_2s4kg_1A2: ["F", "C"],
         s_2kg1A_1: ["T", "B"],
         m2s_2kg1A_1: ["Wb", "&#x03C6;"],
+        wl1:[" ",""],
     }
-    const unitBase = ["m", "s", "kg", "A"]
+    const unitBase = ["m", "s", "kg", "A","wl"]
     //Unit IDs and names
     function getUnitID(units) {
         var unitID = ""
@@ -584,6 +585,9 @@
         }
         return name
     }
+    function isUnitImmovable(units){
+        return (units.wl != null && units.wl != 0)    //Immovable if unit is a wall
+    }
     //Cell
     class cellGrid {
         constructor(x, y, units = { m: 1 }) {
@@ -604,6 +608,9 @@
             this.updateVisuals()
             this.updatePosition()
             setCell(x, y, this)
+        }
+        isImmovable(){
+            return isUnitImmovable(this.units)    //Immovable if unit is a wall
         }
         updateVisuals() {
             this.cell.innerHTML = "<div class='cellLabel largeFont'>" + this.getName() + "</div>" + "<div class='cellCornerMark'>" + this.getSymbol() + "</div>"
@@ -629,6 +636,9 @@
         }
         canMerge(obj, dir) {
             if (obj instanceof cellGrid) {
+                if(this.isImmovable() || obj.isImmovable()){
+                    return false
+                }
                 if (dir == DIR_UP) {
                     return getUnitName(divide(obj.units, this.units)) != null
                 } else if (dir == DIR_DOWN) {
@@ -639,6 +649,9 @@
             }
         }
         move(dir) {
+            if(this.isImmovable()){
+                return false
+            }
             var y2 = this.y
             var x2 = this.x
             var success = 0
@@ -798,7 +811,7 @@
                     }
                     var units = cell.units
                     var unitID = getUnitID(cell.units)
-                    if (!gameState.discoveredUnits.includes(unitID)) {
+                    if (!gameState.discoveredUnits.includes(unitID) && !isUnitImmovable(cell.units)) {
                         pushDiscovered(unitID)
                     }
                 }
@@ -947,7 +960,7 @@
         if (savedData.id != "2048units_savedata") return;
         WIDTH = savedData.gridWidth || 4
         HEIGHT = savedData.gridHeight || 4
-        CELLS_PER_ROUND = savedata.cellsPerRound || 1
+        CELLS_PER_ROUND = savedData.cellsPerRound || 1
         clear()
         initGrid()
         if (savedData.cellsV2 != null) {
