@@ -18,7 +18,6 @@
         aspect-ratio: 1;
         min-width: 20em;
         max-width: 95vh; */
-        flex: 4;
         position: relative;
         display: flex;
         align-items: center;
@@ -28,17 +27,18 @@
     .basegrid {
         --columns: 4;
         --rows: 4;
-        --width2: calc(var(--rows) * (5.5em) + 0.5em);
-        --height2: calc(var(--columns) * (5.5em) + 0.5em);
         /*
         --fit-view-size: min( 95vh ,95vw );
         width: calc( var(--fit-view-size) );
         height: calc( var(--fit-view-size) );
         font-size: calc( var(--fit-view-size) * 0.165 / max(var(--rows), var(--columns)));
         */
+        --max-width: 95vw;
+        --max-height: 95vh;
+
         width: calc( var(--fit-view-size) * (var(--columns) + 0.1) );
         height: calc( var(--fit-view-size) * (var(--rows) + 0.1) );
-        --fit-view-size: min( 95vh / ( var(--rows) + 0.1 ) , 95vw / ( var(--columns) + 0.1 ));
+        --fit-view-size: min( var(--max-height) / ( var(--rows) + 0.1 ) , var(--max-width) / ( var(--columns) + 0.1 ));
         border-radius: calc( var(--fit-view-size) * 0.05 );
         background-color: hsl(0, 0%, 27%);
         font-size: calc( var(--fit-view-size) * 0.165 );
@@ -215,7 +215,7 @@
 
 <body>
     <div class='flex1'>
-        <div class="info" id="info" style="flex:2;float:left;width: 100%;">
+        <div class="info" id="info_header" style="flex:2;float:left;order:0;">
             <div class="flex-col">
                 <div style="float: left;">
                     <p style="font-size: xxx-large;margin: 0;">2048 Units</p>
@@ -235,7 +235,7 @@
                 </div>
             </div>
         </div>
-        <div class="area">
+        <div class="area" style="order:1;">
             <div id="basegrid" class="grid basegrid">
                 <div id="bggrid" class="grid overgrid">
 
@@ -250,11 +250,10 @@
                 
             </div>
         </div>
-        <div id="otherinfo" style="flex:2;float: left;max-height: 100%;">
-            <div class="flex-col">
+        <div id="otherinfo" class="flex-col" style="flex:2;float: left;max-height: 98%;order:3;">
                 <div class="plate" style="float: inline-start;padding: 0.3em;">
                     <p>Discovered Units:</p>
-                    <div id="discoveredUnits" style="float: inline-start; width: 100%;height: auto;">
+                    <div id="discoveredUnits" style="float: inline-start;height: auto;">
 
                     </div>
                 </div>
@@ -294,7 +293,6 @@
                         <p>Source Code</p>
                     </a>
                 </div>
-            </div>
         </div>
     </div>
     <div class="toast" id="toast">
@@ -525,21 +523,21 @@
         m1s_1: ["m/s", "v"],
         m1s_2: ["m/s&#x00B2;", "a"],
         kg1: ["kg", "m"],
-        m_3kg1: ["kg/m&#x00B3;", "ρ"],
+        m_3kg1: ["kg/m&#x00B3;", "&#x03C1;"],
         m1s_2kg1: ["N", "F,G"],
-        m1s_1kg1: ["<div style='font-size:80%;'>kg&#x22C5;m/s\nN&#x22C5;s</div>", "P,I"],
+        m1s_1kg1: ["<div style='font-size:0.8em;'>kg&#x22C5;m/s\nN&#x22C5;s</div>", "P,I"],
         m_1s_2kg1: ["Pa", "p"],
         m2s_2kg1: ["J", "E,W,Q"],
         m2s_3kg1: ["W", "P"],
         A1: ["A", "I"],
         s1A1: ["C", "Q"],
         m_1A1: ["A/m", "H"],
-        m2s_3kg1A_1: ["V", "U,E,φ"],
+        m2s_3kg1A_1: ["V", "U,E,&#x03C6;"],
         m1s_3kg1A_1: ["V/m", "E"],
         m2s_3kg1A_2: ["Ω", "R"],
         m_2s4kg_1A2: ["F", "C"],
         s_2kg1A_1: ["T", "B"],
-        m2s_2kg1A_1: ["Wb", "Φ"],
+        m2s_2kg1A_1: ["Wb", "&#x03C6;"],
     }
     const unitBase = ["m", "s", "kg", "A"]
     //Unit IDs and names
@@ -1005,7 +1003,24 @@
         document.getElementById("toast").style.setProperty("opacity", "100%")
         lastToast = setTimeout(() => { document.getElementById("toast").style.setProperty("opacity", "0%") }, 2000)
     }
+
+    function convertRemToPixels(rem) {    
+        return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+    }
+    function onResize(){
+        if(window.innerWidth>window.innerHeight && window.innerWidth>convertRemToPixels(60)){
+            basegrid.style.setProperty("--max-width", "calc( 95vw - 45rem )") 
+            basegrid.style.setProperty("--max-height", "95vh")
+            document.getElementById("otherinfo").style.setProperty("max-height","95vh")
+        }else{
+            basegrid.style.setProperty("--max-width", "95vw")
+            basegrid.style.setProperty("--max-height", "calc( 95vh - 10rem )") 
+            document.getElementById("otherinfo").style.setProperty("max-height","98%")
+        }
+    }
+    window.addEventListener("resize",onResize)
     //Init code
+    onResize()
     window.addEventListener("keydown", onkeydown)
     document.getElementById("touchArea").addEventListener("touchstart", onTouch)
     document.getElementById("touchArea").addEventListener("touchmove", onTouch)
