@@ -315,6 +315,8 @@
     var WIDTH = 4
     var HEIGHT = 4
 
+    var CELLS_PER_ROUND = 1   //Number of cells spawned after every move. Turn this to 0 for puzzle mode
+
     var debug = false
 
 
@@ -766,7 +768,7 @@
             updateRound()
             wait = true
             setTimeout(() => {
-                spawnCells(1)
+                spawnCells(CELLS_PER_ROUND)
                 afterRound()
                 wait = false
             }, 200);
@@ -921,6 +923,7 @@
         savedata.cellsV2 = dumpGrid()
         savedata.gridWidth = WIDTH
         savedata.gridHeight = HEIGHT
+        savedata.cellsPerRound = CELLS_PER_ROUND
         return savedata
     }
     function exportState() {
@@ -944,6 +947,7 @@
         if (savedData.id != "2048units_savedata") return;
         WIDTH = savedData.gridWidth || 4
         HEIGHT = savedData.gridHeight || 4
+        CELLS_PER_ROUND = savedata.cellsPerRound || 1
         clear()
         initGrid()
         if (savedData.cellsV2 != null) {
