@@ -85,12 +85,12 @@
         text-align: center;
         position: relative;
         float: left;
-        margin: 0.2em;
-        width: 3em;
-        height: 3em;
+        margin: 0.2rem;
+        width: 4rem;
+        height: 4rem;
         z-index: 3;
         offset-anchor: center;
-        font-size: large;
+        font-size: small;
         text-align: center;
     }
 
@@ -99,7 +99,7 @@
         text-align: center;
         margin: 0px;
         position: absolute;
-        font-size: 1em;
+        font-size: 1.5em;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -60%);
@@ -817,7 +817,10 @@
         var newDiscovered = document.createElement("div")
         newDiscovered.style.backgroundColor = "#" + getColor(getUnitFromID(unitID))
         newDiscovered.classList.add("info_cell")
-        newDiscovered.innerHTML = "<p class='cellLabel'>" + (getUnitNameFromID(unitID) || unitID) + "</p>"
+        //newDiscovered.innerHTML = "<p class='cellLabel'>" + (getUnitNameFromID(unitID) || unitID) + "</p>"
+
+        newDiscovered.innerHTML = "<div class='cellLabel'>" + (getUnitNameFromID(unitID) || unitID) + "</div>" +
+         "<div class='cellCornerMark'>" + getSymbol(unitID) + "</div>"
         discoveredUnitsElement.appendChild(newDiscovered)
     }
     const unlockableUnits = {
