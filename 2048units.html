@@ -41,7 +41,7 @@
         --fit-view-size: min( var(--max-height) / ( var(--rows) + 0.1 ) , var(--max-width) / ( var(--columns) + 0.1 ));
         border-radius: calc( var(--fit-view-size) * 0.05 );
         background-color: hsl(0, 0%, 27%);
-        font-size: calc( var(--fit-view-size) * 0.165 );
+        font-size: calc( var(--fit-view-size) / 6 );
     }
     .overgrid{
         position: absolute;
@@ -85,12 +85,12 @@
         text-align: center;
         position: relative;
         float: left;
-        margin: 0.2rem;
-        width: 4rem;
-        height: 4rem;
+        margin: 0.3em;
+        width: 4.5em;
+        height: 4.5em;
         z-index: 3;
         offset-anchor: center;
-        font-size: small;
+        font-size: x-small;
         text-align: center;
     }
 
