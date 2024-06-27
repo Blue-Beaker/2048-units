@@ -7,7 +7,7 @@
 </head>
 <style type="text/css">
     body {
-        background-color: #222222;
+        background-color: #202020;
         width: 95%;
         height: 95%;
         color-scheme: dark;
@@ -39,7 +39,7 @@
         width: calc( var(--fit-view-size) * (var(--columns) + 0.1) );
         height: calc( var(--fit-view-size) * (var(--rows) + 0.1) );
         --fit-view-size: min( var(--max-height) / ( var(--rows) + 0.1 ) , var(--max-width) / ( var(--columns) + 0.1 ));
-        border-radius: calc( var(--fit-view-size) * 0.05 );
+        border-radius: calc( var(--fit-view-size) * 0.1 );
         background-color: hsl(0, 0%, 27%);
         font-size: calc( var(--fit-view-size) / 6 );
     }
@@ -74,8 +74,13 @@
     }
 
     .bg {
-        background-color: #333333;
+        background-color: #303030;
         z-index: 1;
+    }
+    .immovable-cell{
+        transition: none;
+        -webkit-transition: none;
+        animation: none;
     }
 
     .info_cell {
@@ -121,15 +126,23 @@
     }
 
     .plate {
-        background-color: #333333;
+        background-color: #303030;
         border-radius: 0.7em;
         border-style: none;
         z-index: 1;
         margin: 0.5em;
     }
 
+    .circle {
+        background: #808080;
+        border-radius: 50%;
+        height: 0.5em;
+        width: 0.5em;
+        position: absolute;
+    }
+
     .toast {
-        background-color: #444444;
+        background-color: #404040;
         box-shadow: 0 0 1em 0 #000000;
         position: fixed;
         right: 1em;
@@ -148,7 +161,7 @@
 
     textarea {
         font-family: sans-serif;
-        background-color: #222222;
+        background-color: #202020;
         color: #ffffff;
         border-radius: 0.5em;
         margin: 0.3em;
@@ -180,7 +193,7 @@
     }
 
     button:active {
-        background-color: #222222;
+        background-color: #202020;
     }
 
     .flex1 {
@@ -484,6 +497,9 @@
         if (units.A != null) {
             color += units.A * 0x27
         }
+        if(isUnitImmovable(units)) {
+            color -= 0x202020
+        }
         return color.toString(16)
     }
     //Logic
@@ -540,7 +556,7 @@
         m_2s4kg_1A2: ["F", "C"],
         s_2kg1A_1: ["T", "B"],
         m2s_2kg1A_1: ["Wb", "&#x03C6;"],
-        wl1:[" ",""],
+        wl1:[" ",""],   //Wall, immovable
     }
     const unitBase = ["m", "s", "kg", "A","wl"]
     //Unit IDs and names
@@ -613,8 +629,13 @@
             return isUnitImmovable(this.units)    //Immovable if unit is a wall
         }
         updateVisuals() {
+            if(this.isImmovable()){
+                this.cell.classList.add("immovable-cell")
+                this.cell.innerHTML = "<div class=circle style='left:0.5em;top:0.5em;' ></div><div class=circle style='right:0.5em;top:0.5em;'></div><div class=circle style='left:0.5em;bottom:0.5em;'></div><div class=circle style='right:0.5em;bottom:0.5em;'></div>"
+            }else{
             this.cell.innerHTML = "<div class='cellLabel largeFont'>" + this.getName() + "</div>" + "<div class='cellCornerMark'>" + this.getSymbol() + "</div>"
-            this.cell.style.backgroundColor = "#" + this.getColor()
+            }
+            this.cell.style.setProperty("background","#" + this.getColor())
         }
         updatePosition() {
             this.cell.style.setProperty("--x", this.x)
@@ -961,6 +982,8 @@
         WIDTH = savedData.gridWidth || 4
         HEIGHT = savedData.gridHeight || 4
         CELLS_PER_ROUND = savedData.cellsPerRound || 1
+        GRID_WIDTH_SETTER.value=WIDTH
+        GRID_HEIGHT_SETTER.value=HEIGHT
         clear()
         initGrid()
         if (savedData.cellsV2 != null) {
