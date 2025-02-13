@@ -580,6 +580,15 @@
         }
         return unit
     }
+    function getUnitReprFromID(unitID = "") {
+        if (!unitID) return []
+        var repr = []
+        var matched = unitID.matchAll("([a-zA-Z]+)(_?[0-9]+)")
+        for (const match of matched) {
+            repr.push(match[1]+match[2].replace("_1","⁻¹").replace("1","").replace("2","²").replace("3","³").replace("_", "⁻"))
+        }
+        return repr.join("·")
+    }
     function getUnitName(units) {
         var unitID = getUnitID(units)
         return getUnitNameFromID(unitID)
@@ -852,7 +861,7 @@
         newDiscovered.style.backgroundColor = "#" + getColor(getUnitFromID(unitID))
         newDiscovered.classList.add("info_cell")
         //newDiscovered.innerHTML = "<p class='cellLabel'>" + (getUnitNameFromID(unitID) || unitID) + "</p>"
-
+        newDiscovered.title=getUnitReprFromID(unitID)
         newDiscovered.innerHTML = "<div class='cellLabel'>" + (getUnitNameFromID(unitID) || unitID) + "</div>" +
          "<div class='cellCornerMark'>" + getSymbol(unitID) + "</div>"
         discoveredUnitsElement.appendChild(newDiscovered)
